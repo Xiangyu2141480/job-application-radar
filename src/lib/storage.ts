@@ -1,6 +1,7 @@
 import type { AppMode } from '../config'
 import { SAMPLE_RECORDS } from '../data/sample'
 import { normalizeStage, type ApplicationRecord, type HistoryEvent } from '../types'
+import { initialRecords } from './initialRecords'
 
 const PERSONAL_KEY = 'job-application-radar:v1'
 const DEMO_KEY = 'job-application-radar:demo:v1'
@@ -26,13 +27,13 @@ export function migrateRecords(values: ApplicationRecord[]) {
 export function loadRecords(mode: AppMode): ApplicationRecord[] {
   try {
     const raw = localStorage.getItem(keyFor(mode))
-    if (!raw) return mode === 'demo' ? SAMPLE_RECORDS : []
+    if (!raw) return initialRecords(mode, SAMPLE_RECORDS)
     const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed.records)) return mode === 'demo' ? SAMPLE_RECORDS : []
+    if (!Array.isArray(parsed.records)) return initialRecords(mode, SAMPLE_RECORDS)
     const result = migrateRecords(parsed.records)
     if (result.migrated) saveRecords(mode, result.records)
     return result.records
-  } catch { return mode === 'demo' ? SAMPLE_RECORDS : [] }
+  } catch { return initialRecords(mode, SAMPLE_RECORDS) }
 }
 
 export function saveRecords(mode: AppMode, records: ApplicationRecord[]) {

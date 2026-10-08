@@ -4,10 +4,10 @@
 
 ## 运行模式与数据隔离
 
-项目使用 `VITE_APP_MODE` 区分公开演示版和个人版：
+项目使用 `VITE_APP_MODE` 区分个人版和公开演示版：
 
-- `demo`（默认）：公开仓库和普通构建的默认模式。首次打开会加载少量**完全虚构**的示例记录，数据写入独立的 `job-application-radar:demo:v1` localStorage 键。
-- `personal`：个人使用模式。只读取既有的 `job-application-radar:v1` 数据；为空时展示新增和导入引导，**不会自动注入或回退到示例数据**。
+- `personal`（默认）：普通运行和构建均进入个人模式。只读取既有的 `job-application-radar:v1` 数据；为空时展示 0 条记录及新增、导入引导，**不会自动注入或回退到示例数据**。
+- `demo`：仅在显式设置 `VITE_APP_MODE=demo` 时启用。首次打开会加载 4 条**完全虚构**的示例记录，并写入独立的 `job-application-radar:demo:v1` localStorage 键。
 
 两种模式使用不同的本地存储键，因此切换构建模式不会用演示记录覆盖个人记录。现有 v1 schema 与旧阶段“已拒绝”迁移继续兼容。
 
@@ -25,47 +25,57 @@
 
 需要 Node.js 18+ 与 pnpm。
 
+默认个人模式：
+
 ```bash
 pnpm install
 pnpm dev
 ```
 
-未设置环境变量时自动使用 demo 模式。也可以显式指定：
+显式启动演示模式：
 
 ```bash
 VITE_APP_MODE=demo pnpm dev
+```
+
+也可显式声明个人模式：
+
+```bash
 VITE_APP_MODE=personal pnpm dev
 ```
 
 ## 生产构建
 
-公开演示版：
+默认个人版：
+
+```bash
+pnpm build
+```
+
+显式演示版：
 
 ```bash
 VITE_APP_MODE=demo pnpm build
 ```
 
-个人版：
-
-```bash
-VITE_APP_MODE=personal pnpm build
-```
-
 产物位于 `dist/`，该目录不提交 Git。
 
-## 导入自己的数据
+## 手动恢复 JSON 备份
 
-1. 使用 personal 模式启动或部署。
-2. 打开“数据管理”。
-3. 可下载 CSV 模板后填写并导入；也可恢复由本应用导出的 JSON 备份。
-4. 导入前建议保留原备份。JSON 恢复会替换当前数据，CSV 导入会追加记录。
+1. 使用默认 personal 模式启动或部署应用。
+2. 打开“数据管理” → “JSON 备份”。
+3. 点击“恢复备份”，选择由本应用导出的完整 `.json` 备份文件。
+4. 确认成功提示及恢复数量。JSON 恢复会替换当前数据，操作前建议先下载现有备份。
+
+CSV 导入位于同一页面，用于追加记录；它不会替代完整 JSON 备份中的状态历史。
 
 ## 隐私说明
 
 - 投递记录仅保存在当前 origin、当前浏览器的 localStorage 中，不会写入源码或上传服务端。
+- localStorage 按 origin（协议、域名、端口的组合）隔离；不同部署域名之间不会自动共享数据。
+- 更新同一 origin 的静态资源不会清空或覆盖该 origin 下已有的个人记录。
 - 清理站点数据、重置浏览器或更换设备前，请下载 JSON 备份。
 - 仓库只包含独立创作的虚构示例；不得把个人备份、private seed、`applications.json` 或处理后的投递文件加入版本控制。
-- 不同部署 origin 的 localStorage 不共享；更新同一 origin 的静态资源不会自动删除该 origin 下的数据。
 
 ## 开源说明
 

@@ -15,7 +15,10 @@ tmp/
 
 # Private application data must never be committed
 processed-applications/
+real-applications/
+private-backups/
 **/radar-backup*.json
+**/*真实投递*.json
 **/private-seed*
 **/private-backup*
 applications.json
