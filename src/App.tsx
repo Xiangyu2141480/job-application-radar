@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ApplicationRecord, CheckResult, Stage } from './types'
 import { loadRecords, saveRecords } from './lib/storage'
-import { ACTIVE_STAGES, alertLevel } from './lib/radar'
+import { QUEUE_STAGES, alertLevel } from './lib/radar'
 import { SAMPLE_RECORDS } from './data/sample'
 import { AppShell, type Page } from './components/AppShell'
 import { Dashboard } from './components/Dashboard'
@@ -23,7 +23,7 @@ export default function App() {
   const [toast, setToast] = useState('')
   useEffect(() => saveRecords(records), [records])
   useEffect(() => { if (!toast) return; const id = window.setTimeout(() => setToast(''), 2600); return () => clearTimeout(id) }, [toast])
-  const queueCount = useMemo(() => records.filter(r => ACTIVE_STAGES.includes(r.stage) && alertLevel(r) !== '正常').length, [records])
+  const queueCount = useMemo(() => records.filter(r => QUEUE_STAGES.includes(r.stage) && (r.stage === '待投递' || alertLevel(r) !== '正常')).length, [records])
   const now = () => new Date().toISOString()
   const notify = (text: string) => setToast(text)
   const openAdd = () => { setEditing(undefined); setFormOpen(true) }
@@ -34,10 +34,11 @@ export default function App() {
     setFormOpen(false); setEditing(undefined); notify(editing ? '投递记录已更新' : '投递记录已创建')
   }
   const noChange = (record: ApplicationRecord) => { const time = now(); setRecords(all => all.map(r => r.id === record.id ? { ...r, lastCheckedAt: time, updatedAt: time, history: [...r.history, { id: crypto.randomUUID(), type: 'check', time, note: '确认无变化' }] } : r)); notify('已刷新检查时间') }
-  const updateStatus = (record: ApplicationRecord, stage: Stage, note: string) => { const time = now(); setRecords(all => all.map(r => r.id === record.id ? { ...r, stage, lastCheckedAt: time, updatedAt: time, history: [...r.history, stage === r.stage ? { id: crypto.randomUUID(), type: 'check', time, note: note || '巡检后状态无变化' } : { id: crypto.randomUUID(), type: 'status', oldStage: r.stage, newStage: stage, time, note: note || '巡检后更新状态' }] } : r)); notify('巡检结果已保存') }
+  const updateStatus = (record: ApplicationRecord, stage: Stage, note: string, appliedAt = record.appliedAt) => { const time = now(); setRecords(all => all.map(r => r.id === record.id ? { ...r, stage, appliedAt, lastCheckedAt: stage === '待投递' ? r.lastCheckedAt : time, updatedAt: time, history: [...r.history, stage === r.stage ? { id: crypto.randomUUID(), type: 'check', time, note: note || '巡检后状态无变化' } : { id: crypto.randomUUID(), type: 'status', oldStage: r.stage, newStage: stage, time, note: note || '巡检后更新状态' }] } : r)); notify('巡检结果已保存') }
   const importCheckResult = (result: CheckResult) => {
     const target = records.find(r => r.id === result.applicationId) || records.find(r => result.match && r.company === result.match.company && r.role === result.match.role && (!result.match.platform || r.platform === result.match.platform))
     if (!target) throw new Error('未找到与检查结果匹配的投递记录')
+    if (result.stage && result.stage !== '待投递' && !target.appliedAt) throw new Error('该记录尚无投递日期，请先在投递档案中补充后再更新阶段')
     const time = result.checkedAt
     setRecords(all => all.map(r => r.id !== target.id ? r : { ...r, stage: result.stage || r.stage, lastCheckedAt: time, updatedAt: time, history: [...r.history, result.stage && result.stage !== r.stage ? { id: crypto.randomUUID(), type: 'status', oldStage: r.stage, newStage: result.stage, time, note: result.message || `来自 ${result.connectorId} 的检查结果` } : { id: crypto.randomUUID(), type: 'import', time, note: result.message || `导入 ${result.connectorId} 检查结果：${result.status}` }] }))
   }

@@ -1,5 +1,11 @@
-export const STAGES = ['已投递', '笔试', '面试', '意向', 'Offer', '已拒绝', '已撤回'] as const
+export const STAGES = ['待投递', '已投递', '笔试', '面试', '意向', 'Offer', '简历挂', '测评挂', '一面挂', '二面挂', '三面挂', '终面挂', '其他挂', '已撤回'] as const
 export type Stage = typeof STAGES[number]
+export type LegacyStage = Stage | '已拒绝'
+
+export function normalizeStage(stage: unknown): Stage | undefined {
+  if (stage === '已拒绝') return '其他挂'
+  return STAGES.includes(stage as Stage) ? stage as Stage : undefined
+}
 
 export interface HistoryEvent {
   id: string
