@@ -1,0 +1,6 @@
+{
+    "app_name": "job-application-radar",
+    "app_description": "本地优先的秋招投递状态监控与巡检看板",
+    "capabilities": [],
+    "datasources": {}
+}
