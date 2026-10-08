@@ -12,3 +12,11 @@ pnpm-debug.log*
 coverage/
 .tmp/
 tmp/
+
+# Private application data must never be committed
+processed-applications/
+**/radar-backup*.json
+**/private-seed*
+**/private-backup*
+applications.json
+**/applications.json

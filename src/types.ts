@@ -23,6 +23,7 @@ export interface ApplicationRecord {
   platform: string
   url: string
   appliedAt: string
+  deadline?: string
   stage: Stage
   lastCheckedAt?: string
   updatedAt: string

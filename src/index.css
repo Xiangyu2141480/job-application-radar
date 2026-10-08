@@ -2,13 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color: #292b28; background: #fbf8f1; font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; font-synthesis: none; }
+:root { color: #0f172a; background: #f8fafc; font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; font-synthesis: none; }
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background-color: #fbf8f1; background-image: radial-gradient(rgba(222, 145, 62, .1) 1px, transparent 1px); background-size: 24px 24px; }
+html { background: #f8fafc; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: #f8fafc; }
 button, input, select, textarea { font: inherit; }
-::selection { background: #ffdfb8; }
-@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.animate-rise { animation: rise .32s cubic-bezier(.2,.8,.2,1) both; }
-.animate-delay-1 { animation-delay: .06s; }
-.animate-delay-2 { animation-delay: .12s; }
+button, a { -webkit-tap-highlight-color: transparent; }
+::selection { background: #dbeafe; color: #1e3a8a; }
+@keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.animate-rise { animation: rise .2s ease-out both; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
